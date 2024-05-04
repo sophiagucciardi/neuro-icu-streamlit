@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import altair as alt
 
 st.set_page_config(
     page_title="Home", 
@@ -81,27 +82,38 @@ hosp_mortality = (
 
 hosp_mortality_adj = hosp_mortality[ hosp_mortality['In hospital mortality'] == 'Y' ]
 
-#---MORTALITY DONUT CHART------------------------------------------------------------------------------------------------------------------------------------------------
+# #---MORTALITY DONUT CHART------------------------------------------------------------------------------------------------------------------------------------------------
 
-# occurrences of each category in 'ICU_mortality'
-mortality_counts = nsicu_df["death"].value_counts()
+mortality_df = nsicu_df[["death", 'Age Group']]
 
-# pie chart
-mortality_pie = plt.pie(
-    mortality_counts, labels=mortality_counts.index, startangle=90, counterclock=False,
-    colors = [
-    "#153448" if label == "Died" else "#3C5B6F" for label in mortality_counts.index
-]
+domain = ['Died', 'Survived']
+range_ = ['#0D0630', '#C1EEFF']
+
+mortality_pie = alt.Chart(mortality_df).mark_arc(innerRadius=120).encode(
+    theta="count()",
+    color=alt.Color('death:N').scale(domain=domain, range=range_)
 )
+ 
+st.altair_chart(mortality_pie)
 
-# Add a circle at the center to transform it into a donut chart
-mortality_donut = plt.Circle((0, 0), 0.7, color="white")
-p = plt.gcf()
-p.gca().add_artist(mortality_donut)
 
-plt.title("Patient Mortality")
 
-# Add Legends
-plt.legend(mortality_counts.index, loc="upper right")
+# st.dataframe(nsicu_df['death'],['Age Group'])
 
-st.pyplot(mortality_pie)
+
+# def get_chart_57737(use_container_width: bool):
+
+#     source = nsicu_df.groupby("Age Group")["Hospital Duration (Days)"].value_counts()
+
+#     chart = alt.Chart(source).mark_arc(innerRadius=50).encode(
+#         theta=alt.Theta(field="value", type="quantitative"),
+#         color=alt.Color(field="category", type="nominal"),
+#     )
+
+#     tab1, tab2 = st.tabs(["Streamlit theme (default)", "Altair native theme"])
+
+#     with tab1:
+#         st.altair_chart(chart, theme="streamlit", use_container_width=True)
+#     with tab2:
+#         st.altair_chart(chart, theme=None, use_container_width=True)
+

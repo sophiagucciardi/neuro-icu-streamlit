@@ -61,11 +61,11 @@ with intro:
 
 with pt_breakdown:
     def show_outcomes(data):
-        st.subheader('Patient Breakdown')
-        st.markdown(f"Use the side bar to filter the patient breakdown by disease category.")
+
+        st.header('  ')
         
         ## disease selection sidebar 
-        selected_disease = st.sidebar.multiselect('Select Disease:', nsicu_df['Category1'].unique())
+        selected_disease = st.multiselect('Select Disease:', nsicu_df['Category1'].unique())
         if selected_disease:
             disease_filtered =  nsicu_df[nsicu_df['Category1'].isin(selected_disease)]
         else: 
@@ -88,11 +88,13 @@ with pt_breakdown:
         show_outcomes(nsicu_df)
 
 
-st.markdown('''This data set is sourced from a study of 4,750 neurocritically ill patients that were admitted to 
-            the ICU at a hospital in South Korea over a (time) year period. 
+st.markdown('''This data set is sourced from a study of 4,750 neurocritically ill patients admitted to the ICU at Samsung Medical Center in Seoul, South Korea.
+            The data spans from 2011 to 2023, with one outlier being admitted in 2004.  
             ''')
 
 st.image('images/milad-fakurian-58Z17lnVS4U-unsplash-2-scaled.jpg', caption='Source: Milad Fakurian on Unsplash')
+
+
                                       
 
 
