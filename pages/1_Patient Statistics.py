@@ -51,8 +51,12 @@ with image_col:
 #------TABS-------------------------------------------------------------------------------------------------------------
 age_tab, sex_tab, comorbidity_tab, stay_duration_tab = st.tabs(["Age", "Sex", "Comorbidities", "Admission Duration"])
 
+
+#---AGE----------------------------------------------------------------------------------------------------------------------------
 with age_tab:
    
+
+ #--AGE COLUMNS--------------------------------  
    age_intro_col, age_df_col = st.columns([4.5, 1], gap='medium')
 
    with age_intro_col:
@@ -77,9 +81,8 @@ with age_tab:
        age_df = age_df.rename(index={'80':'80+'}).to_frame("Patients")
        
        st.dataframe(age_df)
-
-  
-   
+    
+# multiselect-----
    selected_age = st.multiselect('Filter Diseases by Age Group:', nsicu_df['Age Group'].unique())
    if selected_age:
       age_filtered =  nsicu_df[nsicu_df['Age Group'].isin(selected_age)]
@@ -87,39 +90,58 @@ with age_tab:
 
    age_filtered = age_filtered.sort_index().rename(index={'80':'80+'})
 
-
+# graph-----------
    age_chart = alt.Chart(age_filtered).mark_bar().encode(
     x=alt.X('count()', title='Number of Patients'),
-    y=alt.Y('Category1', title='Disease', ).sort('-x')
+    y=alt.Y('Category1', title='Disease' ).sort('-x')
     ).configure_axis(labelLimit=300, grid=False, ticks=False
     ).properties(width=900, height=300)
    
-   
    st.altair_chart(age_chart)
 
-
-
-
-    # st.markdown(f'### Graph')
-    # st.subheader('Plotly Chart')
-    # age_fig = px.histogram(nsicu_df['Age Group'])
-    # st.plotly_chart(age_fig)
-
-
+#--SEX--------------------------------------------------------------------------------------------------------------------------
 with sex_tab:
-   st.header("Patient Sex")
+   st.markdown(''' ### Sex as an Influence on Patients ''')
+   st.markdown('''
+               # 
+               ''')
    
-   vio_graph_col, sex_intro = st.columns(2)
+   vio_graph_col, sex_intro_col = st.columns(2)
    
    #---SEX VIOLIN PLOT------------------------
-   st.markdown(f'###### Age and Sex Distrubution')
+   with sex_intro_col:
+       
+       st.markdown('''Many diseases can manifest differently in men and women and a patient's gender can put them at higher risk for some diseases and lower risk for others.   
+               Many neurological disorders have been found to have strong associations with sex in terms of incidence and manifestation.   
+               For example, young men are at higher risk for stroke than women. As age increases, however, women's risk outpaces men's.    
+               Animal studies have found some evidence that men and women might respond differently to treatment after stroke as well. [5] ''')
+       st.markdown('''
+                   #
+                   ''')
+    
+       selected_disease = st.multiselect('Filter by disease to compare incidence in men and women:', nsicu_df['Category1'].unique())
+       if selected_disease:
+           disease_filtered = nsicu_df[nsicu_df['Category1'].isin(selected_disease)]
+       else: disease_filtered = nsicu_df
+
+       domain = ['Male', 'Female']
+       range_ = ['#6fa8dc', '#ecc6d9']
+
+       sex_chart = alt.Chart(disease_filtered).mark_bar().encode(
+           x=alt.X('count()', title = 'Number of Patients'),
+           y=alt.Y('Sex', title=''),
+           color=alt.Color('Sex', scale=alt.Scale(domain=domain, range=range_))
+       ).configure_axis(grid=False, ticks=False).properties(width=450, height=150)
+
+       st.altair_chart(sex_chart)
+
    with vio_graph_col:
       # Color
         domain = ['Male', 'Female']
         range_ = ['#6fa8dc', '#ecc6d9']
 
         # Violin plot
-        sex_violin = alt.Chart(nsicu_df).transform_density(
+        sex_violin = alt.Chart(disease_filtered).transform_density(
             'Age',
             as_=['Age', 'density'],    
             groupby=['Sex']
@@ -149,9 +171,13 @@ with sex_tab:
         st.altair_chart(sex_violin)
         st.caption('This violin plot provides a quick visual representation of the distribution of males and females in this study by their age groups.')
 
-
+#--COMORBIDITIES--------------------------------------------------------------------------------------------------------------------
 with comorbidity_tab:
     st.header('Comorbidities')
+
+# data frames for comorbidities:
+    chronic_ds_df = nsicu_df[['DM', 'HTN', 'Lipidemia', 'Chronic_kidney_ds', 'Chronic_liver_ds', 'Cardiovascular_ds', 'Cerebrovascular_ds']]
+    # infection_df = nsicu_df[['Other_procedual_infections', 'Uro_infection', 'Respiratory_infection', 'GI_infection', 'Sepsis', 'Other_infection']]
 
 with stay_duration_tab:
    st.header("Duration of Time Admitted")

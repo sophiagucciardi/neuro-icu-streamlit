@@ -11,5 +11,3 @@ st.markdown('''
             [4] https://pubmed.ncbi.nlm.nih.gov/35737277/ 
 
             ''')  
-
-st.header('Data Source:')
