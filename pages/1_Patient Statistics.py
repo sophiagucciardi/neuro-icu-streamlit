@@ -27,6 +27,9 @@ title_col, image_col = st.columns(2)
 
 with title_col:
     st.title('Patient Statistics :stethoscope:')
+    st.markdown('''
+                #
+                ''')
     st.markdown(''' Health and health outcomes are influenced by many things. Broadly, most factors can be organized into categories:''')
     st.markdown('''
                 :dna: Genetics  
@@ -37,19 +40,13 @@ with title_col:
                 ''')
     st.markdown('''
                 Although this dataset does not include social, environmental, or behavioral factors, genetic and medical factors as well as physical influences are represented in the data.''')  
-    st.markdown(''' ###### Explore some determinants of health using the tabs below:  ''')
 with image_col:
-    st.markdown('''
-                #  
-                #''')
     st.image('images/kristine-wook-ZyxNWi3JCto-unsplash.jpg', caption='Image from Kristine Wook on Unsplash')
 
 
-
-
-
+st.markdown(''' #### Explore some determinants of health using the tabs below:  ''')
 #------TABS-------------------------------------------------------------------------------------------------------------
-age_tab, sex_tab, comorbidity_tab, stay_duration_tab = st.tabs(["Age", "Sex", "Comorbidities", "Admission Duration"])
+age_tab, sex_tab, stay_duration_tab = st.tabs(["Age", "Sex", "Admission Duration"])
 
 
 #---AGE----------------------------------------------------------------------------------------------------------------------------
@@ -91,7 +88,7 @@ with age_tab:
    age_filtered = age_filtered.sort_index().rename(index={'80':'80+'})
 
 # graph-----------
-   age_chart = alt.Chart(age_filtered).mark_bar().encode(
+   age_chart = alt.Chart(age_filtered).mark_bar(cornerRadiusTopRight=15, cornerRadiusBottomRight=15).encode(
     x=alt.X('count()', title='Number of Patients'),
     y=alt.Y('Category1', title='Disease' ).sort('-x')
     ).configure_axis(labelLimit=300, grid=False, ticks=False
@@ -116,7 +113,7 @@ with sex_tab:
                For example, young men are at higher risk for stroke than women. As age increases, however, women's risk outpaces men's.    
                Animal studies have found some evidence that men and women might respond differently to treatment after stroke as well. [5] ''')
        st.markdown('''
-                   #
+                   #   
                    ''')
     
        selected_disease = st.multiselect('Filter by disease to compare incidence in men and women:', nsicu_df['Category1'].unique())
@@ -127,7 +124,7 @@ with sex_tab:
        domain = ['Male', 'Female']
        range_ = ['#6fa8dc', '#ecc6d9']
 
-       sex_chart = alt.Chart(disease_filtered).mark_bar().encode(
+       sex_chart = alt.Chart(disease_filtered).mark_bar(cornerRadiusTopRight=50, cornerRadiusBottomRight=50).encode(
            x=alt.X('count()', title = 'Number of Patients'),
            y=alt.Y('Sex', title=''),
            color=alt.Color('Sex', scale=alt.Scale(domain=domain, range=range_))
@@ -171,13 +168,7 @@ with sex_tab:
         st.altair_chart(sex_violin)
         st.caption('This violin plot provides a quick visual representation of the distribution of males and females in this study by their age groups.')
 
-#--COMORBIDITIES--------------------------------------------------------------------------------------------------------------------
-with comorbidity_tab:
-    st.header('Comorbidities')
-
-# data frames for comorbidities:
-    chronic_ds_df = nsicu_df[['DM', 'HTN', 'Lipidemia', 'Chronic_kidney_ds', 'Chronic_liver_ds', 'Cardiovascular_ds', 'Cerebrovascular_ds']]
-    # infection_df = nsicu_df[['Other_procedual_infections', 'Uro_infection', 'Respiratory_infection', 'GI_infection', 'Sepsis', 'Other_infection']]
+#--STAY DURATION--------------------------------------------------------------------------------------------------------------------
 
 with stay_duration_tab:
    st.header("Duration of Time Admitted")
