@@ -1,7 +1,5 @@
 import streamlit as st
 import altair as alt
-import seaborn as sns
-import plotly.express as px
 import pandas as pd
 
 st.set_page_config(
@@ -44,33 +42,29 @@ with image_col:
     st.image('images/kristine-wook-ZyxNWi3JCto-unsplash.jpg', caption='Image from Kristine Wook on Unsplash')
 
 
-st.markdown(''' #### Explore some determinants of health using the tabs below:  ''')
+st.markdown(''' #### Explore two determinants of health using the tabs below:  ''')
 #------TABS-------------------------------------------------------------------------------------------------------------
-age_tab, sex_tab, stay_duration_tab = st.tabs(["Age", "Sex", "Admission Duration"])
+age_tab, sex_tab = st.tabs(["Age", "Sex"])
 
 
 #---AGE----------------------------------------------------------------------------------------------------------------------------
 with age_tab:
-   
 
  #--AGE COLUMNS--------------------------------  
    age_intro_col, age_df_col = st.columns([4.5, 1], gap='medium')
 
    with age_intro_col:
        st.markdown(" ### Patient Age")
+       st.markdown('#')
        st.markdown(''' Age has been observed to be a factor in patient outcomes in a number of ways. 
                Oftentimes, very young or very old patients can be more vulnerable to serious illness and injury and 
-               can be more at risk of contracting infectious illnesses.  
+               can have a higher risk of contracting infectious illnesses.  
                Children are at higher risk for a variety of reasons. For example, they are more likely to come in contact with environmental hazards, as young children often put their hands in their
-               mouths and spend more time on the ground and outdoors than most people in other age groups. Children have weaker immune
-               systems and at the same time have frequent contact with others through places like school or daycare, and are therefore
-               more likely to catch infectious diseases. Very young children are also unable to communicate how they are feeling, 
-               which can make assessing their condition and accessing care in a timely manner more difficult than it would be for someone
-               who can communicate an issue. [2].  
+               mouths and spend more time on the ground and outdoors than other age groups. Children have weaker immune
+               systems and at the same time have frequent contact with others through places like school or daycare, increasing their likelihood of catching infectious diseases [2].  
                    Older adults are more often to have one or more chronic conditions, which can complicate care, and are more likely
-               than other age groups to be hospitalized for some infectious illnesses. [3]  
-               For neurocritically ill patients, mortality and otherwise unfavorable outcomes are associated with ages 60 years and above. 
-               These patients also have higher clinical severity on average than other age groups. [4]  
+               than other age groups to be hospitalized for infectious illnesses. [3]  
+                   For neurocritically ill patients, mortality and otherwise unfavorable outcomes are associated with ages 60 years and above and on average have higher clinical severity than other age groups [4].  
                     ''')
    with age_df_col: 
        st.markdown('#### Age Ranges Represented:')
@@ -79,26 +73,36 @@ with age_tab:
        
        st.dataframe(age_df)
     
-# multiselect-----
-   selected_age = st.multiselect('Filter Diseases by Age Group:', nsicu_df['Age Group'].unique())
-   if selected_age:
-      age_filtered =  nsicu_df[nsicu_df['Age Group'].isin(selected_age)]
-   else: age_filtered = nsicu_df
+#----AGE GRAPH--------------------------------------------------------------------
+   age_graph_col, age_sel_col = st.columns([3, 1])
 
-   age_filtered = age_filtered.sort_index().rename(index={'80':'80+'})
+   with age_sel_col:
+        
+        st.markdown('''##''')
 
-# graph-----------
-   age_chart = alt.Chart(age_filtered).mark_bar(cornerRadiusTopRight=15, cornerRadiusBottomRight=15).encode(
-    x=alt.X('count()', title='Number of Patients'),
-    y=alt.Y('Category1', title='Disease' ).sort('-x')
-    ).configure_axis(labelLimit=300, grid=False, ticks=False
-    ).properties(width=900, height=300)
+        selected_age = st.multiselect('Filter Diseases by Age Group:', nsicu_df['Age Group'].unique())
+        if selected_age:
+            age_filtered =  nsicu_df[nsicu_df['Age Group'].isin(selected_age)]
+        else: age_filtered = nsicu_df
+
+        age_filtered = age_filtered.sort_index().rename(index={'80':'80+'})
    
-   st.altair_chart(age_chart)
+   with age_graph_col:
+          
+          st.markdown(' #### View Disease Distribution by Age Group:')
+
+          age_chart = alt.Chart(age_filtered).mark_bar(cornerRadiusTopRight=15, cornerRadiusBottomRight=15).encode(
+              x=alt.X('count()', title='Number of Patients'),
+              y=alt.Y('Category1', title='Disease' ).sort('-x')
+            ).configure_axis(labelLimit=300, grid=False, ticks=False
+            ).properties(width=880, height=300)
+          
+          st.altair_chart(age_chart)
+
 
 #--SEX--------------------------------------------------------------------------------------------------------------------------
 with sex_tab:
-   st.markdown(''' ### Sex as an Influence on Patients ''')
+   st.markdown(''' ### Sex  ''')
    st.markdown('''
                # 
                ''')
@@ -168,35 +172,5 @@ with sex_tab:
         st.altair_chart(sex_violin)
         st.caption('This violin plot provides a quick visual representation of the distribution of males and females in this study by their age groups.')
 
-#--STAY DURATION--------------------------------------------------------------------------------------------------------------------
-
-with stay_duration_tab:
-   st.header("Duration of Time Admitted")
-
-   #---MED DURATION/AGE GRAPH----------------------------------------------
-   age_group_median_duration = (
-       nsicu_df.groupby(["Age Group", "death"])["Hospital Duration (Days)"]
-        .median()
-        .reset_index()
-    ) 
    
-   age_group_median_duration.columns = ["age_Group", "death", "med_stay"]
 
-   domain = ['Died', 'Survived']
-   range_ = ['#0D0630', '#C1EEFF']
-
-#create chart
-#cornerRadius round corners
-
-   age_duration = alt.Chart(age_group_median_duration).mark_bar(
-       cornerRadiusTopLeft=3,
-       cornerRadiusTopRight=3
-   ).encode(
-      x=alt.X('age_Group', title= 'Age Group'),
-      y=alt.Y('med_stay', title='Median Admission Duration (Days)'),
-      color=alt.Color('death', scale=alt.Scale(domain=domain, range=range_)),
-      tooltip=['count()']
-   ).properties(width=400
-   )
-
-   st.altair_chart(age_duration)

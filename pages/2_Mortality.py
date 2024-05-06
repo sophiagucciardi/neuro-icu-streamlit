@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
 import altair as alt
 
 st.set_page_config(
@@ -103,6 +102,7 @@ with numbers_col:
 
     # mortaliy statistics markdowns
     st.subheader('Mortality Statistics')
+    st.markdown(''' ###### Filter by Disease on the Sidebar: ''')
     st.markdown(f'''  * **{num_patients} Patients Total**''')
     st.markdown(f'''  * **{num_patients_dec} Patients** Died''')
     st.markdown(f'''  * **{mort_rate:.2f} %** Mortality Rate''')
@@ -148,7 +148,7 @@ st.markdown( ''' ##### Explore proposed and established prognostic tools below:'
 #--PROGNOSTIC TOOLS------------------------------------------------------------------------------------------------------------------------------------------------
 
 #create tabs
-crp_tab, apache_tab = st.tabs(['C-Reactive Protein', 'Apache II'])
+crp_tab, apache_tab, gcs_tab = st.tabs(['C-Reactive Protein', 'Apache II', 'Glasgow Coma Scale'])
 
 #---CRP TAB---------------------------------------------------------
 with crp_tab:
@@ -166,9 +166,6 @@ with crp_tab:
 #--CRP GRAPH------------------------
     with crp_graph_col:
         st.markdown(''' ##### Mortality Associated with Max CRP Levels''')
-
-        domain = ['Died', 'Survived']
-        range_ = ['#0D0630', '#C1EEFF']
 
         crp_graph = alt.Chart(disease_filtered).mark_bar(cornerRadiusTopRight=50, cornerRadiusBottomRight=50
         ).encode(
@@ -210,7 +207,7 @@ with apache_tab:
         apache_chart = alt.Chart(disease_filtered).mark_area().encode(
             x=alt.X("APACHE2 score:Q", title='APACHE II Score'),
             y=alt.Y("count():Q", title='Percent of Patients').stack('normalize'),
-            color=alt.Color("death:N", legend=None).scale(domain=domain, range=range_),
+            color=alt.Color("death:N").scale(domain=domain, range=range_),
             tooltip=[
                 alt.Tooltip('death:N', title="Status\:"), 
                 alt.Tooltip('count():Q', title="Percent of Patients\:"), 
@@ -223,3 +220,51 @@ with apache_tab:
         
         st.altair_chart(apache_chart)
 
+with gcs_tab: 
+
+    st.header('Glasgow Coma Scale as a Prognostic Tool')
+
+    gcs_intro_col, gcs_graph_col = st.columns([2,1])
+
+    with gcs_intro_col:
+
+        st.markdown(''' The Glasgow Coma Scale, often abbreviated as GCS is a common way to objectively describe the extent that a patient's consciousness is impaired in all types of acute and trauma contexts.  
+                    It assesses three aspects of responsiveness, which can be reported all together to provide a clear assessment of a patient's state:  ''')
+        st.markdown(''' :eye:  Eye-Opening   
+                    :wave:  Motor Responses  
+                    :speech_balloon:  Verbal Responses  ''')
+        st.markdown(''' The score for the three criteria can be aggregated into a total Glasgow Coma Score, which can be used as an overview of overall severity. [11]  
+                    ''')
+        st.markdown(''' The total GCS ranges from 3 to 15, with 15 being the best and means a patient is fully responsive and has no problems with thinking or memory and 3 being the worst and describes a patient in a severe coma.  
+                    A score of 8 and below generally indicates a coma, and the lower the score, the deeper the coma is.  
+                    * 13 to 15: Mild traumatic brain injury (concussion)    
+                    * 9 to 12: Moderate TBI  
+                    * 3 to 8 Severe TBI [12]    
+                    ''')
+        st.markdown(''' The Glasgow Coma Scale has been found to be an effective way to predict patient outcomes in several studies and has consistently shown an association between increasing mortality and decreasing GCS score [13].  
+                    While the GCS is not the only thing providers use when making a prognosis, it is commonly used to make predictions about likely outcomes and can be combined with other prognostic tools to effectively forecast a patient's outcome. [12]
+                    ''')
+
+    with gcs_graph_col:
+
+        st.subheader('Glasgow Coma Scale and Patient Mortality')
+
+        gcs_graph = alt.Chart(disease_filtered.dropna(subset=["Glasgow Coma Scale"])).mark_bar(cornerRadiusTopRight=80, cornerRadiusTopLeft=80
+        ).encode(
+            x=alt.X('Glasgow Coma Scale', axis=alt.Axis(labelAngle=-45)),
+            y=alt.Y('count()', title='Number of Patients'),
+            color=alt.Color('death:N').scale(domain=domain, range=range_),
+        tooltip=([
+            alt.Tooltip('death:N', title="Status\:"), 
+            alt.Tooltip('count()', title="Number of Patients\:"), 
+            alt.Tooltip('Glasgow Coma Scale')])
+        ).properties(width=550, height=550
+        ).configure_axis(
+            grid=False, labelLimit=300, ticks=False
+        ).properties(width=450, height=480
+        ).configure_mark(width=50)
+
+        st.altair_chart(gcs_graph)
+
+
+        
