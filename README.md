@@ -3,7 +3,7 @@
 
 ## 📖 Introduction
 
-This streamlit app explores a dataset containing data from 4750 neurocritical ICU patients. It allows users to interact with graphs to investigate relationships between factors such as age, sex, and disease inform one another and explore statistics associated with different variables. 
+This streamlit app explores a dataset containing data from 4750 neurocritical ICU patients. It allows users to interact with graphs to investigate relationships between factors such as age, sex, and disease and explore statistics associated with different variables. 
 The purpose of this app was not to draw conclusions with, rather to provide the user tools with which to examine correlations, general trends, and relationships. 
 
 The app has four main pages:
